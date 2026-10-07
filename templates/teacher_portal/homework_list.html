@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Homework - Cozmo Teacher Portal{% endblock %}
+{% block page_title %}Homework{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <p class="text-sm text-gray-500 mt-1">Manage and assign homework to your classes.</p>
+    </div>
+    <a href="{% url 'teacher_portal:homework_create' %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 shadow-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Assign Homework
+    </a>
+</div>
+
+{% if homework_list %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for hw in homework_list %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all flex flex-col">
+        <div class="flex justify-between items-start mb-3">
+            <span class="bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-md">{{ hw.school_class.name }}</span>
+            <span class="text-xs text-gray-400">{{ hw.created_at|date:"M d, Y" }}</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ hw.title }}</h3>
+        <p class="text-sm text-gray-600 line-clamp-3 mb-4 flex-grow">{{ hw.content }}</p>
+        
+        <div class="mt-auto pt-4 border-t border-gray-50 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span class="text-sm {% if hw.is_past_due %}text-red-500 font-medium{% else %}text-gray-600{% endif %}">
+                Due: {{ hw.due_date|date:"M d, Y" }}
+            </span>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+    <div class="mx-auto h-12 w-12 rounded-full bg-gray-50 flex items-center justify-center mb-4">
+        <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900">No homework assigned</h3>
+    <p class="mt-1 text-sm text-gray-500 mb-4">You haven't created any homework assignments yet.</p>
+    <a href="{% url 'teacher_portal:homework_create' %}" class="inline-flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-700">
+        Assign homework now <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+    </a>
+</div>
+{% endif %}
+{% endblock %}

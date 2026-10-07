@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Issue Warning - cozmo{% endblock %}
+{% block page_title %}Issue Warning{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 border-t-4 border-t-amber-500">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+            <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Issue Formal Warning
+        </h2>
+        
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 mb-4">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div>
+                <label for="{{ form.student.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Student</label>
+                {{ form.student }}
+                {% if form.student.errors %}<p class="text-red-500 text-xs mt-1">{{ form.student.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.warning_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Warning Type</label>
+                {{ form.warning_type }}
+                {% if form.warning_type.errors %}<p class="text-red-500 text-xs mt-1">{{ form.warning_type.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.reason.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Reason / Details</label>
+                {{ form.reason }}
+                {% if form.reason.errors %}<p class="text-red-500 text-xs mt-1">{{ form.reason.errors.0 }}</p>{% endif %}
+                <p class="text-xs text-gray-500 mt-1">Provide clear details. Parents may be able to see this.</p>
+            </div>
+
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100 mt-6">
+                <a href="{% url 'admin_portal:warning_list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm">
+                    Issue Warning
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('select, textarea').forEach(el => {
+        el.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'focus:outline-none', 'focus:ring-amber-500', 'focus:border-amber-500', 'sm:text-sm');
+    });
+    document.querySelectorAll('textarea').forEach(el => el.setAttribute('rows', '4'));
+</script>
+{% endblock %}

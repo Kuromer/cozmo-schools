@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Invitation - cozmo{% endblock %}
+{% block page_title %}Update Invitation{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Update Invitation Status</h2>
+        
+        <!-- Context Info -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200 text-sm text-gray-700 space-y-2">
+            <p><span class="font-medium">Parent:</span> {{ invitation.parent.user.get_full_name|default:invitation.parent.user.username }}</p>
+            <p><span class="font-medium">Student:</span> {{ invitation.student.first_name }} {{ invitation.student.last_name }}</p>
+            <p><span class="font-medium">Type:</span> {{ invitation.get_invitation_type_display }}</p>
+        </div>
+
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 mb-4">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- We exclude parent, student, type in the form but include status, date, time, notes -->
+            <div>
+                <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                {{ form.status }}
+                {% if form.status.errors %}<p class="text-red-500 text-xs mt-1">{{ form.status.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label for="{{ form.scheduled_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Reschedule Date</label>
+                    {{ form.scheduled_date }}
+                    {% if form.scheduled_date.errors %}<p class="text-red-500 text-xs mt-1">{{ form.scheduled_date.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.scheduled_time.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Reschedule Time</label>
+                    {{ form.scheduled_time }}
+                    {% if form.scheduled_time.errors %}<p class="text-red-500 text-xs mt-1">{{ form.scheduled_time.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+
+            <div>
+                <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}<p class="text-red-500 text-xs mt-1">{{ form.notes.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100 mt-6">
+                <a href="{% url 'admin_portal:invitation_list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm">
+                    Update
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('input[type="date"], input[type="time"], select, textarea').forEach(el => {
+        el.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'focus:outline-none', 'focus:ring-blue-500', 'focus:border-blue-500', 'sm:text-sm');
+    });
+    document.querySelectorAll('textarea').forEach(el => el.setAttribute('rows', '3'));
+</script>
+{% endblock %}

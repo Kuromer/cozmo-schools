@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}cozmo School Management{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-dark': '#064e3b',
+                        'brand': '#059669',
+                        'brand-light': '#d1fae5',
+                        'brand-gold': '#d97706',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex text-gray-800">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-gray-900/50 z-20 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-brand-dark flex flex-col z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <!-- Logo Area -->
+        <div class="h-16 flex flex-col justify-center px-6 border-b border-emerald-800/50 pt-4 pb-2">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl font-bold text-white tracking-tight">cozmo</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400 mt-1"></span>
+            </div>
+            <span class="text-emerald-300 text-xs font-medium uppercase tracking-wider mt-1">{{ user.role|default:"Administrator" }}</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            {% if user.role == 'admin' %}
+                <a href="{% url 'admin_portal:dashboard' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group {% if request.resolver_match.url_name == 'dashboard' %}bg-emerald-800 text-white font-medium{% endif %}">
+                    <svg class="w-5 h-5 text-emerald-300 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Dashboard
+                </a>
+                <a href="{% url 'admin_portal:student_list' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group {% if 'student' in request.path %}bg-emerald-800 text-white font-medium{% endif %}">
+                    <svg class="w-5 h-5 text-emerald-300 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    Students
+                </a>
+                <a href="{% url 'admin_portal:finance_list' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group {% if 'finance' in request.path %}bg-emerald-800 text-white font-medium{% endif %}">
+                    <svg class="w-5 h-5 text-emerald-300 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Finance
+                </a>
+                <a href="{% url 'admin_portal:warning_list' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group {% if 'warning' in request.path %}bg-emerald-800 text-white font-medium{% endif %}">
+                    <svg class="w-5 h-5 text-emerald-300 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Warnings
+                </a>
+                <a href="{% url 'admin_portal:invitation_list' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group {% if 'invitation' in request.path %}bg-emerald-800 text-white font-medium{% endif %}">
+                    <svg class="w-5 h-5 text-emerald-300 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Invitations
+                </a>
+                <a href="{% url 'admin_portal:reports' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group {% if 'report' in request.path %}bg-emerald-800 text-white font-medium{% endif %}">
+                    <svg class="w-5 h-5 text-emerald-300 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Reports
+                </a>
+            {% elif user.role == 'teacher' %}
+                <a href="{% url 'teacher_portal:dashboard' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Dashboard
+                </a>
+                <a href="{% url 'teacher_portal:homework_list' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    Homework
+                </a>
+                <a href="{% url 'teacher_portal:message_list' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    Messages
+                </a>
+                <a href="{% url 'teacher_portal:evaluation_list' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    Evaluations
+                </a>
+                <a href="{% url 'teacher_portal:attendance_view' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Attendance
+                </a>
+            {% elif user.role == 'parent' %}
+                <a href="{% url 'parent_portal:dashboard' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-emerald-100 hover:bg-emerald-800 hover:text-white transition-colors group">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Dashboard
+                </a>
+            {% endif %}
+        </nav>
+
+        <!-- Logout -->
+        <div class="px-4 py-4 border-t border-emerald-800/50">
+            <a href="{% url 'logout' %}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-300 hover:bg-red-900/50 hover:text-red-100 transition-colors group">
+                <svg class="w-5 h-5 text-red-400 group-hover:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Sign out
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col lg:ml-64 min-h-screen">
+        <!-- Topbar -->
+        <header class="bg-white shadow-sm border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <h1 class="text-xl font-semibold text-gray-800">{% block page_title %}{% endblock %}</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p class="text-sm font-medium text-gray-700">{{ user.get_full_name|default:user.username }}</p>
+                    <p class="text-xs text-gray-500">{{ user.role|title|default:"Admin" }}</p>
+                </div>
+                <div class="h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm border border-emerald-200">
+                    {{ user.username|first|upper }}
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="p-6 flex-1 max-w-7xl mx-auto w-full">
+            <!-- Messages -->
+            {% if messages %}
+                <div class="mb-6 space-y-2" id="message-container">
+                    {% for message in messages %}
+                        <div class="p-4 rounded-lg flex items-center gap-3 transition-opacity duration-500 {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-100{% elif message.tags == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-100{% else %}bg-blue-50 text-blue-700 border border-blue-100{% endif %}" role="alert">
+                            {% if message.tags == 'error' %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            {% elif message.tags == 'success' %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            {% else %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            {% endif %}
+                            <p class="text-sm font-medium">{{ message }}</p>
+                            <button class="ml-auto text-current opacity-70 hover:opacity-100" onclick="this.parentElement.remove()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+        // Sidebar Toggle for Mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+
+        // Auto-dismiss messages
+        setTimeout(function() {
+            const msgContainer = document.getElementById('message-container');
+            if (msgContainer) {
+                Array.from(msgContainer.children).forEach(child => {
+                    child.style.opacity = '0';
+                    setTimeout(() => child.remove(), 500);
+                });
+            }
+        }, 5000);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

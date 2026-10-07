@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student.first_name }} {{ student.last_name }} - cozmo{% endblock %}
+{% block page_title %}Student Profile{% endblock %}
+
+{% block content %}
+<!-- Top Header Card -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-5">
+            <div class="h-16 w-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-2xl border-2 border-white shadow-sm">
+                {{ student.first_name|first|upper }}
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">{{ student.first_name }} {{ student.last_name }}</h2>
+                <div class="flex flex-wrap items-center gap-4 mt-1 text-sm text-gray-600">
+                    <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>{{ student.get_grade_level_display }}</span>
+                    <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>Parent: {{ student.parent.user.get_full_name|default:"Not linked" }}</span>
+                    <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>Enrolled: {{ student.enrollment_date|date:"M j, Y" }}</span>
+                    <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>DOB: {{ student.date_of_birth|date:"M j, Y" }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'admin_portal:student_update' student.id %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors text-sm">Edit</a>
+            <form action="{% url 'admin_portal:student_delete' student.id %}" method="post" class="inline" onsubmit="return confirm('Delete this student forever?');">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg font-medium transition-colors text-sm">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="mb-4 border-b border-gray-200 overflow-x-auto">
+    <ul class="flex whitespace-nowrap gap-6 px-2" id="studentTabs" role="tablist">
+        <li role="presentation">
+            <button class="tab-btn inline-block py-3 px-2 border-b-2 font-medium text-sm border-emerald-600 text-emerald-600" data-target="tab-fees" role="tab">Fees</button>
+        </li>
+        <li role="presentation">
+            <button class="tab-btn inline-block py-3 px-2 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-target="tab-warnings" role="tab">Warnings</button>
+        </li>
+        <li role="presentation">
+            <button class="tab-btn inline-block py-3 px-2 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-target="tab-invitations" role="tab">Invitations</button>
+        </li>
+        <li role="presentation">
+            <button class="tab-btn inline-block py-3 px-2 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-target="tab-homework" role="tab">Homework</button>
+        </li>
+        <li role="presentation">
+            <button class="tab-btn inline-block py-3 px-2 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-target="tab-evals" role="tab">Evaluations</button>
+        </li>
+        <li role="presentation">
+            <button class="tab-btn inline-block py-3 px-2 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-target="tab-attendance" role="tab">Attendance</button>
+        </li>
+        <li role="presentation">
+            <button class="tab-btn inline-block py-3 px-2 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-target="tab-messages" role="tab">Messages</button>
+        </li>
+    </ul>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden min-h-[400px]">
+    <!-- Tab: Fees -->
+    <div id="tab-fees" class="tab-content block p-0">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Description</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Amount</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Due Date</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for fee in fees %}
+                <tr>
+                    <td class="px-6 py-4 text-sm text-gray-800">{{ fee.description }}</td>
+                    <td class="px-6 py-4 text-sm font-medium">${{ fee.amount }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ fee.due_date|date:"M j, Y" }}</td>
+                    <td class="px-6 py-4">
+                        {% if fee.status == 'paid' %}
+                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-medium">Paid</span>
+                        {% else %}
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <form action="{% url 'admin_portal:toggle_fee_status' fee.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="text-sm font-medium text-emerald-600 hover:text-emerald-800">
+                                {% if fee.status == 'paid' %}Mark Unpaid{% else %}Mark Paid{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 text-sm">No fee records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tab: Warnings -->
+    <div id="tab-warnings" class="tab-content hidden p-0">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Type</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Reason</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date Issued</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for warning in warnings %}
+                <tr>
+                    <td class="px-6 py-4 text-sm text-gray-800">{{ warning.get_warning_type_display }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ warning.reason }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ warning.date_issued|date:"M j, Y" }}</td>
+                    <td class="px-6 py-4">
+                        {% if warning.status == 'active' %}
+                            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-medium">Active</span>
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs font-medium">Canceled</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        {% if warning.status == 'active' %}
+                            <a href="{% url 'admin_portal:cancel_warning' warning.id %}" class="text-sm font-medium text-gray-500 hover:text-red-600">Cancel</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 text-sm">No warnings issued.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tab: Invitations -->
+    <div id="tab-invitations" class="tab-content hidden p-0">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Type</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date / Time</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for invite in invitations %}
+                <tr>
+                    <td class="px-6 py-4 text-sm text-gray-800">{{ invite.get_invitation_type_display }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ invite.scheduled_date|date:"M j, Y" }} @ {{ invite.scheduled_time|time:"g:i A" }}</td>
+                    <td class="px-6 py-4">
+                        {% if invite.status == 'pending' %}
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">Pending</span>
+                        {% elif invite.status == 'accepted' %}
+                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-medium">Accepted</span>
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs font-medium">Canceled</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="px-6 py-8 text-center text-gray-500 text-sm">No invitations found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tab: Homework -->
+    <div id="tab-homework" class="tab-content hidden p-0">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Title</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Subject</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Due Date</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for hw in homework_list %}
+                <tr>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ hw.title }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ hw.school_class.subject_name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ hw.due_date|date:"M j, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="px-6 py-8 text-center text-gray-500 text-sm">No homework found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tab: Evaluations -->
+    <div id="tab-evals" class="tab-content hidden p-0">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Subject</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Grade</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Teacher</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for ev in evaluations %}
+                <tr>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ ev.school_class.subject_name }}</td>
+                    <td class="px-6 py-4 text-sm font-bold text-emerald-600">{{ ev.grade }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ ev.teacher.user.get_full_name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ ev.date|date:"M j, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="px-6 py-8 text-center text-gray-500 text-sm">No evaluations found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tab: Attendance -->
+    <div id="tab-attendance" class="tab-content hidden p-0">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for att in attendance_records %}
+                <tr>
+                    <td class="px-6 py-4 text-sm text-gray-800">{{ att.date|date:"M j, Y" }}</td>
+                    <td class="px-6 py-4">
+                        {% if att.status == 'present' %}
+                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-medium">Present</span>
+                        {% elif att.status == 'absent' %}
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium">Absent</span>
+                        {% else %}
+                            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-medium">Late</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="2" class="px-6 py-8 text-center text-gray-500 text-sm">No attendance records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Tab: Messages -->
+    <div id="tab-messages" class="tab-content hidden p-0">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Subject</th>
+                    <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase">From Teacher</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for msg in messages_list %}
+                <tr>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ msg.date_sent|date:"M j, Y" }}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ msg.subject }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ msg.sender.get_full_name }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="px-6 py-8 text-center text-gray-500 text-sm">No messages found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active classes
+                tabs.forEach(t => {
+                    t.classList.remove('border-emerald-600', 'text-emerald-600');
+                    t.classList.add('border-transparent', 'text-gray-500');
+                });
+                // Add active class
+                tab.classList.remove('border-transparent', 'text-gray-500');
+                tab.classList.add('border-emerald-600', 'text-emerald-600');
+
+                // Hide all contents
+                contents.forEach(c => c.classList.add('hidden'));
+                contents.forEach(c => c.classList.remove('block'));
+
+                // Show target content
+                const targetId = tab.getAttribute('data-target');
+                document.getElementById(targetId).classList.remove('hidden');
+                document.getElementById(targetId).classList.add('block');
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

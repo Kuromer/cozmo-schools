@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}My Classes - Cozmo Teacher Portal{% endblock %}
+{% block page_title %}My Classes{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h2 class="text-xl font-semibold text-gray-800">Assigned Classes</h2>
+        <p class="text-sm text-gray-500 mt-1">Manage your classes and students.</p>
+    </div>
+</div>
+
+{% if classes %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for class in classes %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden relative group hover:shadow-md transition-shadow">
+        <div class="h-1 bg-emerald-500 w-full absolute top-0 left-0"></div>
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-900 group-hover:text-emerald-700 transition-colors">{{ class.name }}</h3>
+                    <p class="text-sm text-gray-500 mt-1">Grade: {{ class.grade_level }}</p>
+                </div>
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 font-bold text-sm">
+                    {{ class.student_count|default:"0" }}
+                </span>
+            </div>
+            
+            <div class="mt-6 flex gap-3">
+                <a href="{% url 'teacher_portal:class_detail' class.pk %}" class="flex-1 text-center bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all">
+                    View Students
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+    <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+    </svg>
+    <h3 class="mt-2 text-lg font-medium text-gray-900">No classes assigned</h3>
+    <p class="mt-1 text-sm text-gray-500">You haven't been assigned to any classes yet.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Warning - cozmo{% endblock %}
+{% block page_title %}Cancel Warning{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 border-t-4 border-t-gray-400">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Cancel Warning</h2>
+        
+        <!-- Warning details context -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+            <h3 class="font-medium text-gray-900 mb-2">Warning Details:</h3>
+            <div class="grid grid-cols-3 gap-2 text-sm">
+                <div class="text-gray-500">Student:</div>
+                <div class="col-span-2 font-medium">{{ warning.student.first_name }} {{ warning.student.last_name }}</div>
+                
+                <div class="text-gray-500">Type:</div>
+                <div class="col-span-2">{{ warning.get_warning_type_display }}</div>
+                
+                <div class="text-gray-500">Date Issued:</div>
+                <div class="col-span-2">{{ warning.date_issued|date:"M j, Y" }}</div>
+                
+                <div class="text-gray-500">Original Reason:</div>
+                <div class="col-span-2 text-gray-700">{{ warning.reason }}</div>
+            </div>
+        </div>
+        
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 mb-4">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div>
+                <label for="{{ form.cancellation_reason.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Reason for Cancellation</label>
+                {{ form.cancellation_reason }}
+                {% if form.cancellation_reason.errors %}<p class="text-red-500 text-xs mt-1">{{ form.cancellation_reason.errors.0 }}</p>{% endif %}
+                <p class="text-xs text-gray-500 mt-1">Please provide a reason why this warning is being removed from the active list.</p>
+            </div>
+
+            <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100 mt-6">
+                <a href="javascript:history.back()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-lg font-medium transition-colors">
+                    Back
+                </a>
+                <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm">
+                    Confirm Cancellation
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('textarea').forEach(el => {
+        el.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'focus:outline-none', 'focus:ring-gray-500', 'focus:border-gray-500', 'sm:text-sm');
+        el.setAttribute('rows', '4');
+    });
+</script>
+{% endblock %}

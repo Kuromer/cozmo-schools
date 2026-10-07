@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}My Children - Cozmo Parent Portal{% endblock %}
+{% block page_title %}My Children{% endblock %}
+
+{% block content %}
+{% if not children %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center max-w-2xl mx-auto mt-10">
+    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+    <h2 class="text-xl font-medium text-gray-900">No Children Linked</h2>
+    <p class="mt-2 text-gray-500">There are currently no student accounts linked to your parent profile. Please contact the school administration if you believe this is an error.</p>
+</div>
+{% else %}
+
+<!-- Multi-child toggle -->
+<div class="mb-8 overflow-x-auto pb-2">
+    <div class="flex space-x-2">
+        {% for child in children %}
+        <a href="?child_id={{ child.id }}" 
+           class="px-5 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap {% if selected_child.id == child.id %}bg-emerald-600 text-white shadow-md{% else %}bg-white text-gray-600 border border-gray-200 hover:bg-gray-50{% endif %}">
+            {{ child.user.get_full_name|default:child.user.username }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left Column -->
+    <div class="lg:col-span-1 space-y-6">
+        
+        <!-- SECTION 1: Student Info Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden relative">
+            <div class="h-2 bg-emerald-500 w-full"></div>
+            <div class="p-6 text-center">
+                <div class="w-20 h-20 bg-emerald-100 rounded-full mx-auto flex items-center justify-center text-emerald-700 text-2xl font-bold mb-4">
+                    {{ selected_child.user.first_name|first|default:"S" }}
+                </div>
+                <h2 class="text-xl font-bold text-gray-900">{{ selected_child.user.get_full_name|default:selected_child.user.username }}</h2>
+                <p class="text-emerald-600 font-medium mt-1">Grade {{ selected_child.grade_level }}</p>
+                <div class="mt-4 pt-4 border-t border-gray-100 text-sm text-gray-500 flex justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    DOB: {{ selected_child.date_of_birth|date:"M d, Y"|default:"Not specified" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 8: Attendance Summary -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Attendance Overview
+            </h3>
+            <div class="space-y-3 mb-4">
+                {% for att in attendance_records|slice:":3" %}
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-600">{{ att.date|date:"M d, Y" }}</span>
+                    {% if att.status == 'present' %}
+                    <span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-medium">Present</span>
+                    {% else %}
+                    <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">Absent</span>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-sm text-gray-500">No recent attendance records.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- SECTION 3: Warnings -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                Active Warnings
+            </h3>
+            {% if warnings %}
+            <div class="space-y-3">
+                {% for w in warnings %}
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-xs font-semibold text-amber-700">{{ w.get_warning_type_display|default:w.warning_type }}</span>
+                        <span class="text-[10px] text-amber-600">{{ w.date|date:"M d" }}</span>
+                    </div>
+                    <p class="text-sm text-gray-700">{{ w.reason }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="flex items-center gap-2 text-emerald-600 bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span class="text-sm font-medium">No active warnings</span>
+            </div>
+            {% endif %}
+        </div>
+        
+    </div>
+
+    <!-- Right Column (Wider) -->
+    <div class="lg:col-span-2 space-y-6">
+        
+        <!-- SECTION 2: Fee Status -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Financial Overview
+            </h3>
+            
+            {% if fees %}
+            <div class="overflow-x-auto mb-4">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-gray-500 border-b border-gray-100">
+                            <th class="pb-2 font-medium">Description</th>
+                            <th class="pb-2 font-medium">Due Date</th>
+                            <th class="pb-2 font-medium text-right">Amount</th>
+                            <th class="pb-2 font-medium text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        {% for fee in fees %}
+                        <tr>
+                            <td class="py-3 text-gray-800">{{ fee.description }}</td>
+                            <td class="py-3 text-gray-500">{{ fee.due_date|date:"M d, Y" }}</td>
+                            <td class="py-3 text-gray-900 font-medium text-right">${{ fee.amount }}</td>
+                            <td class="py-3 text-right">
+                                {% if fee.status == 'paid' %}
+                                <span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-medium">Paid</span>
+                                {% else %}
+                                <span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-medium">Unpaid</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500 py-4 text-center bg-gray-50 rounded-lg">No fees recorded.</p>
+            {% endif %}
+        </div>
+
+        <!-- SECTION 5: Homework -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                Recent Homework
+            </h3>
+            
+            {% if homework_list %}
+            <div class="space-y-4">
+                {% for hw in homework_list|slice:":3" %}
+                <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-medium text-gray-900">{{ hw.title }}</h4>
+                        <span class="text-xs font-medium px-2 py-1 rounded bg-gray-100 text-gray-600">Due: {{ hw.due_date|date:"M d" }}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 line-clamp-2">{{ hw.content }}</p>
+                    <p class="text-xs text-emerald-600 mt-2 font-medium">{{ hw.school_class.name }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500 py-4 text-center bg-gray-50 rounded-lg">No recent homework assigned.</p>
+            {% endif %}
+        </div>
+
+        <!-- 2 Column Grid for smaller sections -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- SECTION 6: Evaluations -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Evaluations</h3>
+                {% if evaluations %}
+                <div class="space-y-3">
+                    {% for eval in evaluations|slice:":3" %}
+                    <div class="border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-800">{{ eval.subject }}</span>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded">{{ eval.grade }}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 truncate">{{ eval.comment }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500 text-center py-2">No evaluations available.</p>
+                {% endif %}
+            </div>
+
+            <!-- SECTION 7: Messages -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Messages</h3>
+                {% if messages %}
+                <div class="space-y-3">
+                    {% for msg in messages|slice:":3" %}
+                    <div class="border-b border-gray-50 pb-3 last:border-0 last:pb-0">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-sm font-medium text-gray-800 truncate pr-2">{{ msg.subject }}</span>
+                            {% if not msg.is_read %}
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></span>
+                            {% endif %}
+                        </div>
+                        <p class="text-xs text-gray-500 truncate">From: {{ msg.sender.user.get_full_name|default:msg.sender.user.username }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500 text-center py-2">No new messages.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endif %}
+{% endblock %}
