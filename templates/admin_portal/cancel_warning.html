@@ -19,7 +19,7 @@
                 <div class="col-span-2">{{ warning.get_warning_type_display }}</div>
                 
                 <div class="text-gray-500">Date Issued:</div>
-                <div class="col-span-2">{{ warning.date_issued|date:"M j, Y" }}</div>
+                <div class="col-span-2">{{ warning.created_at|date:"M j, Y" }}</div>
                 
                 <div class="text-gray-500">Original Reason:</div>
                 <div class="col-span-2 text-gray-700">{{ warning.reason }}</div>

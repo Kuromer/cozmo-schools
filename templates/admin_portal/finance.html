@@ -46,8 +46,9 @@
                             <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium">Unpaid</span>
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <form action="{% url 'admin_portal:toggle_fee_status' fee.id %}" method="post">
+                    <td class="px-6 py-4 whitespace-nowrap text-right flex justify-end items-center gap-3">
+                        <a href="{% url 'admin_portal:fee_edit' fee.id %}" class="text-sm font-medium text-amber-600 hover:text-amber-800">Edit</a>
+                        <form action="{% url 'admin_portal:fee_toggle' fee.id %}" method="post" class="inline">
                             {% csrf_token %}
                             <button type="submit" class="text-sm font-medium {% if fee.status == 'paid' %}text-gray-500 hover:text-gray-700{% else %}text-emerald-600 hover:text-emerald-800{% endif %}">
                                 {% if fee.status == 'paid' %}Mark Unpaid{% else %}Mark Paid{% endif %}

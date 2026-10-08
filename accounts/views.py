@@ -17,4 +17,4 @@ def redirect_after_login(request):
         return redirect('teacher_portal:dashboard')
     elif user.is_parent():
         return redirect('parent_portal:dashboard')
-    return redirect('login')
+    return redirect('logout')

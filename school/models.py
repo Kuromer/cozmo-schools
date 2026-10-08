@@ -1,6 +1,19 @@
 from django.db import models
 from django.conf import settings
 
+SUBJECT_CHOICES = (
+    ('arabic', 'Arabic'),
+    ('english', 'English'),
+    ('math', 'Mathematics'),
+    ('science', 'Science'),
+    ('social_studies', 'Social Studies'),
+    ('computer', 'Computer Science'),
+    ('art', 'Art'),
+    ('pe', 'Physical Education'),
+    ('religion', 'Religion'),
+    ('second_language', 'Second Language'),
+)
+
 class Student(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -67,7 +80,7 @@ class Warning(models.Model):
         ordering = ['-created_at']
 
 class ParentInvitation(models.Model):
-    STATUS_CHOICES = (('upcoming', 'Upcoming'), ('pending', 'Pending'), ('completed', 'Completed'), ('rescheduled', 'Rescheduled'))
+    STATUS_CHOICES = (('upcoming', 'Upcoming'), ('pending', 'Pending'), ('completed', 'Completed'), ('rescheduled', 'Rescheduled'), ('canceled', 'Canceled'))
     INVITATION_TYPES = (('meeting', 'Parent Meeting'), ('conference', 'Conference'), ('event', 'School Event'), ('other', 'Other'))
     parent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='invitations', limit_choices_to={'role': 'parent'})
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='invitations')
@@ -85,12 +98,20 @@ class ParentInvitation(models.Model):
         ordering = ['-date', '-time']
 
 class Homework(models.Model):
+    STATUS_CHOICES = (('active', 'Active'), ('closed', 'Closed'))
     school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='homework_assignments')
     assigned_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='assigned_homework')
+    subject = models.CharField(max_length=50, choices=SUBJECT_CHOICES, blank=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
     due_date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def is_past_due(self):
+        from datetime import date
+        return self.due_date < date.today()
 
     def __str__(self):
         return f"{self.title} - {self.school_class}"
@@ -101,7 +122,7 @@ class Homework(models.Model):
 class Evaluation(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='evaluations')
     teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='evaluations_given')
-    subject = models.CharField(max_length=100)
+    subject = models.CharField(max_length=50, choices=SUBJECT_CHOICES, blank=True)
     grade = models.CharField(max_length=10)
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -118,10 +139,11 @@ class Attendance(models.Model):
     date = models.DateField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES)
     marked_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    subject = models.CharField(max_length=50, choices=SUBJECT_CHOICES, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('student', 'date')
+        unique_together = ('student', 'date', 'subject')
         ordering = ['-date']
 
     def __str__(self):

@@ -57,10 +57,10 @@
                             </span>
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ warning.date_issued|date:"M j, Y" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ warning.created_at|date:"M j, Y" }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
                         {% if warning.status == 'active' %}
-                            <a href="{% url 'admin_portal:cancel_warning' warning.id %}" class="text-sm font-medium text-gray-500 hover:text-red-600">Cancel</a>
+                            <a href="{% url 'admin_portal:warning_cancel' warning.id %}" class="text-sm font-medium text-gray-500 hover:text-red-600">Cancel</a>
                         {% else %}
                             <span class="text-gray-300 text-sm">-</span>
                         {% endif %}

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Add Fee - cozmo{% endblock %}
-{% block page_title %}Add Fee{% endblock %}
+{% block title %}{{ title|default:'Add Fee' }} - Cozmo Admin{% endblock %}
+{% block page_title %}{{ title|default:'Add Fee' }}{% endblock %}
 
 {% block content %}
 <div class="max-w-xl mx-auto">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-6">Create New Fee Record</h2>
+        <h2 class="text-xl font-semibold text-gray-800 mb-6">{{ title|default:"Create New Fee Record" }}</h2>
         
         <form method="post" class="space-y-5">
             {% csrf_token %}

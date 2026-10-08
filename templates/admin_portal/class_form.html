@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - cozmo{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="border-b border-gray-100 px-6 py-4 bg-gray-50/50">
+            <h3 class="text-lg font-medium text-gray-900">{{ title }}</h3>
+        </div>
+        
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 mb-6">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Class Name</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label for="{{ form.grade_level.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+                    {{ form.grade_level }}
+                    {% if form.grade_level.errors %}<p class="text-red-500 text-xs mt-1">{{ form.grade_level.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Teachers Checkboxes -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col h-72">
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                        <h4 class="text-sm font-medium text-gray-700">Assign Teachers</h4>
+                    </div>
+                    <div class="p-4 overflow-y-auto flex-1 bg-white">
+                        <div class="space-y-2">
+                            {% for checkbox in form.teachers %}
+                            <label class="flex items-start gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer transition-colors border border-transparent hover:border-gray-100">
+                                <div class="pt-0.5">{{ checkbox.tag }}</div>
+                                <span class="text-sm text-gray-700">{{ checkbox.choice_label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if form.teachers.errors %}<p class="text-red-500 text-xs p-2 bg-red-50">{{ form.teachers.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Students Checkboxes -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col h-72">
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                        <h4 class="text-sm font-medium text-gray-700">Assign Students</h4>
+                    </div>
+                    <div class="p-4 overflow-y-auto flex-1 bg-white">
+                        <div class="space-y-2">
+                            {% for checkbox in form.students %}
+                            <label class="flex items-start gap-3 p-2 rounded hover:bg-gray-50 cursor-pointer transition-colors border border-transparent hover:border-gray-100">
+                                <div class="pt-0.5">{{ checkbox.tag }}</div>
+                                <span class="text-sm text-gray-700">{{ checkbox.choice_label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if form.students.errors %}<p class="text-red-500 text-xs p-2 bg-red-50">{{ form.students.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+
+            <div class="mt-8 flex items-center gap-3 pt-4 border-t border-gray-100">
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm">
+                    Save Class
+                </button>
+                <a href="{% url 'admin_portal:class_list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-lg font-medium transition-all">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Style for the generated checkbox inputs */
+    input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        color: #10b981;
+        border-color: #d1d5db;
+        border-radius: 0.25rem;
+    }
+    input[type="checkbox"]:focus {
+        --tw-ring-color: #10b981;
+    }
+</style>
+{% endblock %}

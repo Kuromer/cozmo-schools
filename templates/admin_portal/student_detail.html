@@ -14,15 +14,15 @@
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">{{ student.first_name }} {{ student.last_name }}</h2>
                 <div class="flex flex-wrap items-center gap-4 mt-1 text-sm text-gray-600">
-                    <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>{{ student.get_grade_level_display }}</span>
-                    <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>Parent: {{ student.parent.user.get_full_name|default:"Not linked" }}</span>
+                    <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>{{ student.grade_level }}</span>
+                    <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>Parent: {{ student.parent.get_full_name|default:"Not linked" }}</span>
                     <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>Enrolled: {{ student.enrollment_date|date:"M j, Y" }}</span>
                     <span class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>DOB: {{ student.date_of_birth|date:"M j, Y" }}</span>
                 </div>
             </div>
         </div>
         <div class="flex gap-2">
-            <a href="{% url 'admin_portal:student_update' student.id %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors text-sm">Edit</a>
+            <a href="{% url 'admin_portal:student_edit' student.id %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors text-sm">Edit</a>
             <form action="{% url 'admin_portal:student_delete' student.id %}" method="post" class="inline" onsubmit="return confirm('Delete this student forever?');">
                 {% csrf_token %}
                 <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg font-medium transition-colors text-sm">Delete</button>
@@ -84,8 +84,9 @@
                             <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium">Unpaid</span>
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 text-right">
-                        <form action="{% url 'admin_portal:toggle_fee_status' fee.id %}" method="post">
+                    <td class="px-6 py-4 text-right flex justify-end items-center gap-3">
+                        <a href="{% url 'admin_portal:fee_edit' fee.id %}" class="text-sm font-medium text-amber-600 hover:text-amber-800">Edit</a>
+                        <form action="{% url 'admin_portal:fee_toggle' fee.id %}" method="post" class="inline">
                             {% csrf_token %}
                             <button type="submit" class="text-sm font-medium text-emerald-600 hover:text-emerald-800">
                                 {% if fee.status == 'paid' %}Mark Unpaid{% else %}Mark Paid{% endif %}
@@ -117,7 +118,7 @@
                 <tr>
                     <td class="px-6 py-4 text-sm text-gray-800">{{ warning.get_warning_type_display }}</td>
                     <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ warning.reason }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ warning.date_issued|date:"M j, Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ warning.created_at|date:"M j, Y" }}</td>
                     <td class="px-6 py-4">
                         {% if warning.status == 'active' %}
                             <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-medium">Active</span>
@@ -127,7 +128,7 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         {% if warning.status == 'active' %}
-                            <a href="{% url 'admin_portal:cancel_warning' warning.id %}" class="text-sm font-medium text-gray-500 hover:text-red-600">Cancel</a>
+                            <a href="{% url 'admin_portal:warning_cancel' warning.id %}" class="text-sm font-medium text-gray-500 hover:text-red-600">Cancel</a>
                         {% endif %}
                     </td>
                 </tr>
@@ -152,14 +153,20 @@
                 {% for invite in invitations %}
                 <tr>
                     <td class="px-6 py-4 text-sm text-gray-800">{{ invite.get_invitation_type_display }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ invite.scheduled_date|date:"M j, Y" }} @ {{ invite.scheduled_time|time:"g:i A" }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ invite.date|date:"M j, Y" }} @ {{ invite.time|time:"g:i A" }}</td>
                     <td class="px-6 py-4">
-                        {% if invite.status == 'pending' %}
-                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">Pending</span>
-                        {% elif invite.status == 'accepted' %}
-                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-medium">Accepted</span>
-                        {% else %}
+                        {% if invite.status == 'upcoming' %}
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">Upcoming</span>
+                        {% elif invite.status == 'pending' %}
+                            <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-medium">Pending</span>
+                        {% elif invite.status == 'completed' %}
+                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-medium">Completed</span>
+                        {% elif invite.status == 'rescheduled' %}
+                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">Rescheduled</span>
+                        {% elif invite.status == 'canceled' %}
                             <span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs font-medium">Canceled</span>
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs font-medium">{{ invite.get_status_display }}</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -183,8 +190,11 @@
             <tbody class="divide-y divide-gray-100">
                 {% for hw in homework_list %}
                 <tr>
-                    <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ hw.title }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ hw.school_class.subject_name }}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-800">
+                        <span class="{% if hw.status == 'closed' %}line-through text-gray-400{% endif %}">{{ hw.title }}</span>
+                        {% if hw.status == 'closed' %}<span class="ml-2 text-xs font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-500">Closed</span>{% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ hw.get_subject_display|default:"General" }}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">{{ hw.due_date|date:"M j, Y" }}</td>
                 </tr>
                 {% empty %}
@@ -208,10 +218,10 @@
             <tbody class="divide-y divide-gray-100">
                 {% for ev in evaluations %}
                 <tr>
-                    <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ ev.school_class.subject_name }}</td>
+                    <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ ev.get_subject_display }}</td>
                     <td class="px-6 py-4 text-sm font-bold text-emerald-600">{{ ev.grade }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ ev.teacher.user.get_full_name }}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ ev.date|date:"M j, Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ ev.teacher.get_full_name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ ev.created_at|date:"M j, Y" }}</td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="4" class="px-6 py-8 text-center text-gray-500 text-sm">No evaluations found.</td></tr>
@@ -261,9 +271,9 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-                {% for msg in messages_list %}
+                {% for msg in school_messages %}
                 <tr>
-                    <td class="px-6 py-4 text-sm text-gray-500">{{ msg.date_sent|date:"M j, Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ msg.created_at|date:"M j, Y" }}</td>
                     <td class="px-6 py-4 text-sm font-medium text-gray-800">{{ msg.subject }}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">{{ msg.sender.get_full_name }}</td>
                 </tr>

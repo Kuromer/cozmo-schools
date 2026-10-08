@@ -4,6 +4,57 @@
 {% block page_title %}Attendance{% endblock %}
 
 {% block content %}
+<div class="mb-6 flex border-b border-gray-200 gap-4">
+    <a href="?tab=take" class="px-6 py-3 font-medium text-sm {% if tab != 'history' %}text-emerald-600 border-b-2 border-emerald-600{% else %}text-gray-500 hover:text-gray-700{% endif %}">Take/Edit Attendance</a>
+    <a href="?tab=history" class="px-6 py-3 font-medium text-sm {% if tab == 'history' %}text-emerald-600 border-b-2 border-emerald-600{% else %}text-gray-500 hover:text-gray-700{% endif %}">Attendance History</a>
+</div>
+
+{% if tab == 'history' %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
+                    <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Present</th>
+                    <th class="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Absent</th>
+                    <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for item in history_list %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item.date|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ item.class.name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                            {{ item.present }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if item.absent > 0 %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ item.absent }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <a href="?tab=take&class_id={{ item.class.id }}&date={{ item.date|date:'Y-m-d' }}" class="text-sm font-medium text-emerald-600 hover:text-emerald-800">
+                            Edit/View
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        You haven't recorded any attendance yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
     <form method="get" class="flex flex-col md:flex-row gap-4 items-end" id="filter-form">
         <div class="flex-1 w-full">
@@ -45,25 +96,23 @@
                 {% for student in students %}
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {{ student.user.get_full_name|default:student.user.username }}
+                        {{ student.full_name }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
                         <div class="inline-flex rounded-md shadow-sm" role="group">
-                            <input type="hidden" name="student_{{ student.id }}" id="input_{{ student.id }}" 
-                                   value="{% for k, v in attendance_records.items %}{% if k == student.id %}{{ v }}{% endif %}{% endfor %}">
+                            <input type="hidden" name="status_{{ student.id }}" id="input_{{ student.id }}" 
+                                   value="{{ student.current_status }}">
                             
                             <button type="button" 
                                     class="attendance-btn rounded-l-lg px-4 py-1.5 text-sm font-medium border border-gray-200 transition-colors
-                                    {% for k, v in attendance_records.items %}{% if k == student.id and v == 'present' %}bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600{% elif k == student.id and v == 'absent' %}bg-white text-gray-700 hover:bg-gray-50{% endif %}{% empty %}bg-white text-gray-700 hover:bg-gray-50{% endfor %}
-                                    {% if student.id not in attendance_records.keys %}bg-white text-gray-700 hover:bg-gray-50{% endif %}"
+                                    {% if student.current_status == 'present' %}bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}"
                                     onclick="markStatus('{{ student.id }}', 'present', this)">
                                 Present
                             </button>
                             
                             <button type="button" 
                                     class="attendance-btn rounded-r-lg px-4 py-1.5 text-sm font-medium border border-l-0 border-gray-200 transition-colors
-                                    {% for k, v in attendance_records.items %}{% if k == student.id and v == 'absent' %}bg-red-500 text-white border-red-500 hover:bg-red-600{% elif k == student.id and v == 'present' %}bg-white text-gray-700 hover:bg-gray-50{% endif %}{% empty %}bg-white text-gray-700 hover:bg-gray-50{% endfor %}
-                                    {% if student.id not in attendance_records.keys %}bg-white text-gray-700 hover:bg-gray-50{% endif %}"
+                                    {% if student.current_status == 'absent' %}bg-red-500 text-white border-red-500 hover:bg-red-600{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}"
                                     onclick="markStatus('{{ student.id }}', 'absent', this)">
                                 Absent
                             </button>
@@ -89,6 +138,8 @@
     </div>
     {% endif %}
 </form>
+{% endif %}
+
 {% endif %}
 
 {% block extra_js %}

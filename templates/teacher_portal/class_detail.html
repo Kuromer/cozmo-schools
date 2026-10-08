@@ -28,13 +28,13 @@
                 {% for student in students %}
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {{ student.user.get_full_name|default:student.user.username }}
+                        {{ student.full_name }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {{ student.grade_level }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ student.parent.user.get_full_name|default:"--" }}
+                        {{ student.parent.get_full_name|default:"--" }}
                     </td>
                 </tr>
                 {% empty %}

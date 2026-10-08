@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - cozmo{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="border-b border-gray-100 px-6 py-4 bg-gray-50/50">
+            <h3 class="text-lg font-medium text-gray-900">{{ title }}</h3>
+        </div>
+        
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 mb-6">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Loop through fields manually for better layout, or just a simple loop -->
+                {% for field in form %}
+                    {% if field.name == 'is_active' %}
+                    <div class="col-span-1 md:col-span-2 flex items-center gap-3 mt-2 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                        {{ field }}
+                        <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-700 cursor-pointer">
+                            {{ field.label }}
+                        </label>
+                    </div>
+                    {% else %}
+                    {% if field.name == 'children' %}
+                    <div id="children-wrapper" class="col-span-1 md:col-span-2" style="display: none;">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                        
+                        <!-- Search Box -->
+                        <div class="mb-2">
+                            <input type="text" id="student-search" placeholder="Search students by name..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+                        </div>
+                        
+                        <!-- Checkboxes List -->
+                        <div class="max-h-64 overflow-y-auto border border-gray-300 rounded-lg p-2 bg-white" id="student-list-container">
+                            {% for checkbox in field %}
+                            <div class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded transition-colors student-item">
+                                {{ checkbox.tag }}
+                                <label for="{{ checkbox.id_for_label }}" class="text-sm font-medium text-gray-700 cursor-pointer flex-1 select-none">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% if field.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                        <p class="text-xs text-gray-500 mt-2">Check the boxes next to the students you want to link.</p>
+                    </div>
+                    {% else %}
+                    <div class="{% if field.name == 'username' or field.name == 'email' or field.name == 'role' %}col-span-1 md:col-span-2{% endif %}" {% if field.name == 'subject' %}id="subject-wrapper"{% endif %}>
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ field.help_text|safe }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="mt-8 flex items-center gap-3 pt-4 border-t border-gray-100">
+                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all shadow-sm">
+                    Save Account
+                </button>
+                <a href="{% url 'admin_portal:user_list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-lg font-medium transition-all">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.querySelector('select[name="role"]');
+        const subjectWrapper = document.getElementById('subject-wrapper');
+        const subjectInput = document.querySelector('select[name="subject"]');
+        const childrenWrapper = document.getElementById('children-wrapper');
+        
+        if (roleSelect) {
+            function toggleFields() {
+                if (subjectWrapper) {
+                    if (roleSelect.value === 'teacher') {
+                        subjectWrapper.style.display = 'block';
+                    } else {
+                        subjectWrapper.style.display = 'none';
+                        if (subjectInput) subjectInput.value = '';
+                    }
+                }
+                
+                if (childrenWrapper) {
+                    if (roleSelect.value === 'parent') {
+                        childrenWrapper.style.display = 'block';
+                    } else {
+                        childrenWrapper.style.display = 'none';
+                        const childrenCheckboxes = document.querySelectorAll('input[name="children"]');
+                        if (childrenCheckboxes) {
+                            childrenCheckboxes.forEach(cb => cb.checked = false);
+                        }
+                    }
+                }
+            }
+            
+            toggleFields();
+            roleSelect.addEventListener('change', toggleFields);
+        }
+        
+        // Student Search Logic
+        const studentSearch = document.getElementById('student-search');
+        if (studentSearch) {
+            studentSearch.addEventListener('input', function(e) {
+                const term = e.target.value.toLowerCase();
+                const items = document.querySelectorAll('.student-item');
+                items.forEach(item => {
+                    const label = item.querySelector('label').textContent.toLowerCase();
+                    if (label.includes(term)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %}

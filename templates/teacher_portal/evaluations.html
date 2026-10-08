@@ -30,7 +30,7 @@
                 {% for eval in evaluations %}
                 <tr class="hover:bg-gray-50 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {{ eval.student.user.get_full_name|default:eval.student.user.username }}
+                        {{ eval.student.full_name }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {{ eval.subject }}
@@ -44,7 +44,7 @@
                         {{ eval.comment }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                        {{ eval.date|date:"M d, Y" }}
+                        {{ eval.created_at|date:"M d, Y" }}
                     </td>
                 </tr>
                 {% empty %}

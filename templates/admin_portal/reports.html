@@ -53,10 +53,10 @@
             {% if report_type == 'class_list' %}
             <form method="get" class="flex items-center">
                 <input type="hidden" name="type" value="class_list">
-                <select name="class_id" class="text-sm border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 py-1 pl-2 pr-8" onchange="this.form.submit()">
-                    <option value="">All Grades</option>
-                    {% for grade_code, grade_name in classes %}
-                        <option value="{{ grade_code }}" {% if request.GET.class_id == grade_code %}selected{% endif %}>{{ grade_name }}</option>
+                <select name="class_id" class="text-sm border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 py-1 pl-2 pr-8" onchange="this.form.submit()">
+                    <option value="">All Classes</option>
+                    {% for cls in classes %}
+                        <option value="{{ cls.id }}" {% if request.GET.class_id == cls.id|stringformat:"s" %}selected{% endif %}>{{ cls.name }}</option>
                     {% endfor %}
                 </select>
             </form>
@@ -103,20 +103,20 @@
                 <tr class="hover:bg-gray-50">
                     {% if report_type == 'class_list' or report_type == 'full' %}
                         <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ row.first_name }} {{ row.last_name }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.get_grade_level_display }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.parent.user.get_full_name|default:"-" }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.grade_level }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.parent.get_full_name|default:"-" }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ row.date_of_birth|date:"M j, Y" }}</td>
                     {% elif report_type == 'unpaid_students' %}
                         <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ row.student.first_name }} {{ row.student.last_name }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.student.get_grade_level_display }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.student.grade_level }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ row.description }}</td>
                         <td class="px-6 py-4 text-sm font-medium text-red-600">${{ row.amount }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ row.due_date|date:"M j, Y" }}</td>
                     {% elif report_type == 'warnings' %}
                         <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ row.student.first_name }} {{ row.student.last_name }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.student.get_grade_level_display }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.student.grade_level }}</td>
                         <td class="px-6 py-4 text-sm text-amber-600 font-medium">{{ row.get_warning_type_display }}</td>
-                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.date_issued|date:"M j, Y" }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ row.created_at|date:"M j, Y" }}</td>
                     {% endif %}
                 </tr>
                 {% empty %}

@@ -36,10 +36,10 @@
                         </a>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {{ student.get_grade_level_display }}
+                        {{ student.grade_level }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {{ student.parent.user.get_full_name|default:"<span class='text-gray-400'>&mdash;</span>"|safe }}
+                        {{ student.parent.get_full_name|default:"<span class='text-gray-400'>&mdash;</span>"|safe }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {{ student.enrollment_date|date:"M j, Y" }}
@@ -47,7 +47,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium">
                         <div class="flex items-center justify-end gap-3">
                             <a href="{% url 'admin_portal:student_detail' student.id %}" class="text-gray-500 hover:text-emerald-600">View</a>
-                            <a href="{% url 'admin_portal:student_update' student.id %}" class="text-blue-500 hover:text-blue-700">Edit</a>
+                            <a href="{% url 'admin_portal:student_edit' student.id %}" class="text-blue-500 hover:text-blue-700">Edit</a>
                             <form action="{% url 'admin_portal:student_delete' student.id %}" method="post" class="inline" onsubmit="return confirm('Are you sure you want to delete this student?');">
                                 {% csrf_token %}
                                 <button type="submit" class="text-red-500 hover:text-red-700 bg-transparent border-none p-0 cursor-pointer">Delete</button>
